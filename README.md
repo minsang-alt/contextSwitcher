@@ -4,7 +4,7 @@ A macOS menu bar utility for managing multiple development contexts by hiding/sh
 
 ## Demo
 
-https://github.com/user-attachments/assets/5a2d9b8b-8a45-4646-892d-7789e2dbd33a
+https://github.com/user-attachments/assets/010d90dd-5c32-4f04-9d9f-1386d15954ed
 
 ## Features
 
