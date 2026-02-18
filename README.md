@@ -2,6 +2,10 @@
 
 A macOS menu bar utility for managing multiple development contexts by hiding/showing app windows.
 
+## Demo
+
+https://github.com/user-attachments/assets/5a2d9b8b-8a45-4646-892d-7789e2dbd33a
+
 ## Features
 
 - Save current window layouts as named workspaces
