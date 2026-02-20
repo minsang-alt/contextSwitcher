@@ -22,9 +22,9 @@ https://github.com/user-attachments/assets/010d90dd-5c32-4f04-9d9f-1386d15954ed
 
 | Platform | Download |
 |----------|----------|
-| macOS 14+ (Apple Silicon) | [ContextSwitcher-1.0.0-arm64.zip](https://github.com/minsang-alt/contextSwitcher/releases/latest/download/ContextSwitcher-1.0.0-arm64.zip) |
+| macOS 14+ (Apple Silicon) | [ContextSwitcher-1.0.0-arm64.dmg](https://github.com/minsang-alt/contextSwitcher/releases/latest/download/ContextSwitcher-1.0.0-arm64.dmg) |
 
-> After downloading, unzip and move `ContextSwitcher.app` to `/Applications`.
+> After downloading, open the DMG and drag `ContextSwitcher.app` to `/Applications`.
 
 ## Build from Source
 
