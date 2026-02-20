@@ -1,6 +1,10 @@
-# ContextSwitcher
+<p align="center">
+  <img src="image 1 (2).png" alt="ContextSwitcher" width="128">
+</p>
 
-A macOS menu bar utility for managing multiple development contexts by hiding/showing app windows.
+<h1 align="center">ContextSwitcher</h1>
+
+<p align="center">A macOS menu bar utility for managing multiple development contexts by hiding/showing app windows.</p>
 
 ## Demo
 
@@ -14,26 +18,20 @@ https://github.com/user-attachments/assets/010d90dd-5c32-4f04-9d9f-1386d15954ed
 - Floating HUD panel for quick access
 - Restore all hidden apps with one click
 
-## Requirements
+## Download
 
-- macOS 14 (Sonoma) or later
-- Swift 5.9+
-- Accessibility permission
+| Platform | Download |
+|----------|----------|
+| macOS 14+ (Apple Silicon) | [ContextSwitcher-1.0.0-arm64.zip](https://github.com/minsang-alt/contextSwitcher/releases/latest/download/ContextSwitcher-1.0.0-arm64.zip) |
 
-## Installation
+> After downloading, unzip and move `ContextSwitcher.app` to `/Applications`.
+
+## Build from Source
 
 ```bash
 git clone https://github.com/minsang-alt/contextSwitcher.git
 cd ContextSwitcher
 ./scripts/install.sh
-```
-
-This builds the app, installs it to `/Applications`, and launches it.
-
-To build manually:
-
-```bash
-swift build -c release
 ```
 
 ## Setup
