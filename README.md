@@ -25,6 +25,10 @@ https://github.com/user-attachments/assets/010d90dd-5c32-4f04-9d9f-1386d15954ed
 | macOS 14+ (Apple Silicon) | [ContextSwitcher-1.1.0-arm64.dmg](https://github.com/minsang-alt/contextSwitcher/releases/latest/download/ContextSwitcher-1.1.0-arm64.dmg) |
 
 > After downloading, open the DMG and drag `ContextSwitcher.app` to `/Applications`.
+>
+> **macOS Gatekeeper 경고 시:** 서명되지 않은 앱이라 경고가 뜰 수 있습니다. 아래 중 하나를 실행하세요.
+> - Finder에서 `ContextSwitcher.app`을 **우클릭 → 열기**
+> - 또는 터미널에서: `xattr -cr /Applications/ContextSwitcher.app`
 
 ## Build from Source
 
