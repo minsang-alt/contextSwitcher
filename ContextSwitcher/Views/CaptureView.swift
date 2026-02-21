@@ -8,7 +8,7 @@ struct CaptureView: View {
 
     @State private var workspaceName = ""
     @State private var discoveredWindows: [DiscoveredWindow] = []
-    @State private var selectedWindowIDs: Set<UUID> = []
+    @State private var selectedWindowIDs: Set<String> = []
 
     private var isEditing: Bool { editingWorkspace != nil }
 
@@ -64,6 +64,9 @@ struct CaptureView: View {
         .padding()
         .frame(width: 400, height: 450)
         .onAppear {
+            // 이미 스캔된 상태면 재스캔하지 않음 (앱 전환 후 돌아와도 체크 유지)
+            guard discoveredWindows.isEmpty else { return }
+
             if let ws = editingWorkspace {
                 workspaceName = ws.name
             } else {
@@ -113,7 +116,7 @@ struct CaptureView: View {
                                 }
                             }
                         )) {
-                            Text(window.windowTitle.isEmpty ? "(제목 없음)" : window.windowTitle)
+                            Text(window.displayName.isEmpty ? "(제목 없음)" : window.displayName)
                                 .font(.system(size: 11))
                                 .foregroundStyle(.secondary)
                                 .lineLimit(1)
@@ -123,9 +126,9 @@ struct CaptureView: View {
                     }
                 }
                 .padding(.leading, 20)
-            } else if let title = group.windows.first?.windowTitle, !title.isEmpty {
-                // 창이 1개면 제목만 표시
-                Text(title)
+            } else if let window = group.windows.first, !window.displayName.isEmpty {
+                // 창이 1개면 표시
+                Text(window.displayName)
                     .font(.system(size: 10))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
@@ -175,9 +178,11 @@ struct CaptureView: View {
 
                 if let ws = editingWorkspace {
                     // 편집 모드: 기존 워크스페이스에 매칭되는 창만 선택
+                    // stableIdentityName과 windowTitle 모두 매칭 시도 (기존 데이터 호환)
                     selectedWindowIDs = Set(windows.filter { window in
                         ws.windowIdentifiers.contains { identifier in
-                            identifier.matches(bundleID: window.bundleIdentifier, windowTitle: window.windowTitle)
+                            identifier.matches(bundleID: window.bundleIdentifier, windowTitle: window.windowTitle) ||
+                            identifier.matches(bundleID: window.bundleIdentifier, windowTitle: window.stableIdentityName)
                         }
                     }.map(\.id))
                 } else {
@@ -211,10 +216,11 @@ struct CaptureView: View {
                 identifiers.append(WindowIdentifier(bundleIdentifier: bundleID, titlePattern: ""))
                 processedBundleIDs.insert(bundleID)
             } else {
-                if !window.windowTitle.isEmpty {
+                let pattern = window.stableIdentityName
+                if !pattern.isEmpty {
                     identifiers.append(WindowIdentifier(
                         bundleIdentifier: bundleID,
-                        titlePattern: window.windowTitle
+                        titlePattern: pattern
                     ))
                 }
             }

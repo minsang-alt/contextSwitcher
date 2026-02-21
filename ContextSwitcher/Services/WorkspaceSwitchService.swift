@@ -94,7 +94,10 @@ final class WorkspaceSwitchService {
                     accessibility.raiseWindow(window)
                 } else {
                     // titlePattern 있음 → 매칭되는 창만 raise, 나머지는 minimize
-                    let matched = appSpecific.contains { $0.matches(bundleID: window.bundleIdentifier, windowTitle: window.windowTitle) }
+                    let matched = appSpecific.contains {
+                        $0.matches(bundleID: window.bundleIdentifier, windowTitle: window.windowTitle) ||
+                        $0.matches(bundleID: window.bundleIdentifier, windowTitle: window.stableIdentityName)
+                    }
                     if matched {
                         accessibility.raiseWindow(window)
                         print("[ContextSwitcher]   RAISE specific: \(window.windowTitle)")

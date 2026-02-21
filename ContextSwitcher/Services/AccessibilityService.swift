@@ -3,7 +3,6 @@ import ApplicationServices
 
 /// Accessibility API를 통해 발견된 창 정보
 struct DiscoveredWindow: Identifiable {
-    let id = UUID()
     let appName: String
     let bundleIdentifier: String
     let pid: pid_t
@@ -11,6 +10,58 @@ struct DiscoveredWindow: Identifiable {
     let windowElement: AXUIElement
     let appElement: AXUIElement
     let isMinimized: Bool
+    /// 앱 내 윈도우 순서 (0-based). 탭/파일 전환에도 안정적
+    let windowIndex: Int
+
+    /// bundleIdentifier + 윈도우 인덱스 기반 ID (탭/파일 전환에 영향 안 받음)
+    var id: String { "\(bundleIdentifier):\(windowIndex)" }
+
+    /// 탭/파일 전환에도 안정적인 식별 이름 (저장 및 매칭용)
+    var stableIdentityName: String {
+        // Chrome 계열: "페이지제목 - Chrome - 프로필명" → 프로필명 추출
+        if bundleIdentifier == "com.google.Chrome" ||
+           bundleIdentifier == "com.google.Chrome.canary" ||
+           bundleIdentifier == "com.brave.Browser" ||
+           bundleIdentifier == "com.microsoft.edgemac" {
+            if let range = windowTitle.range(of: " - Chrome - ", options: .backwards) ??
+                           windowTitle.range(of: " - Brave - ", options: .backwards) ??
+                           windowTitle.range(of: " - Edge - ", options: .backwards) {
+                return String(windowTitle[range.upperBound...])
+            }
+        }
+
+        // JetBrains IDE: IntelliJTitleParser 사용
+        if bundleIdentifier.hasPrefix("com.jetbrains.") {
+            return IntelliJTitleParser.extractProjectName(from: windowTitle)
+        }
+
+        return windowTitle
+    }
+
+    /// UI 표시용 이름 (안정적 이름 + 현재 컨텍스트)
+    var displayName: String {
+        let stable = stableIdentityName
+        if stable == windowTitle || windowTitle.isEmpty {
+            return windowTitle
+        }
+        // "프로필명 · 현재탭제목" 또는 "프로젝트명 · 현재파일"
+        // 현재 컨텍스트 부분 추출
+        if let range = windowTitle.range(of: " - Chrome - ", options: .backwards) ??
+                       windowTitle.range(of: " - Brave - ", options: .backwards) ??
+                       windowTitle.range(of: " - Edge - ", options: .backwards) {
+            let tabTitle = String(windowTitle[..<range.lowerBound])
+            return "\(stable) · \(tabTitle)"
+        }
+        if bundleIdentifier.hasPrefix("com.jetbrains.") {
+            let enDash: Character = "\u{2013}"
+            if let dashIdx = windowTitle.firstIndex(of: enDash) {
+                let fileName = String(windowTitle[windowTitle.index(after: dashIdx)...])
+                    .trimmingCharacters(in: .whitespaces)
+                return "\(stable) · \(fileName)"
+            }
+        }
+        return windowTitle
+    }
 }
 
 /// macOS Accessibility API 래퍼
@@ -81,10 +132,11 @@ final class AccessibilityService {
                         windowTitle: "",
                         windowElement: appElement,
                         appElement: appElement,
-                        isMinimized: false
+                        isMinimized: false,
+                        windowIndex: 0
                     ))
                 } else {
-                    for window in windows {
+                    for (index, window) in windows.enumerated() {
                         let title: String = axValue(window, kAXTitleAttribute) ?? ""
                         let isMinimized: Bool = axValue(window, kAXMinimizedAttribute) ?? false
 
@@ -95,7 +147,8 @@ final class AccessibilityService {
                             windowTitle: title,
                             windowElement: window,
                             appElement: appElement,
-                            isMinimized: isMinimized
+                            isMinimized: isMinimized,
+                            windowIndex: index
                         ))
                     }
                 }
@@ -109,7 +162,8 @@ final class AccessibilityService {
                     windowTitle: "",
                     windowElement: appElement,
                     appElement: appElement,
-                    isMinimized: false
+                    isMinimized: false,
+                    windowIndex: 0
                 ))
             }
         }
