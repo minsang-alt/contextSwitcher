@@ -55,6 +55,7 @@ echo "==> DMG 크기: $(du -h "$DMG_PATH" | cut -f1)"
 echo "==> 버전 커밋..."
 git add "${PROJECT_DIR}/ContextSwitcher/Resources/Info.plist" "${PROJECT_DIR}/README.md"
 git commit -m "Bump version to ${VERSION}" || true
+git push
 
 # 6. GitHub Release 생성
 echo "==> GitHub Release ${TAG} 생성 중..."
