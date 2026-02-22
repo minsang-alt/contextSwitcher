@@ -7,26 +7,30 @@ final class WorkspaceConfiguration: Identifiable, Codable, ObservableObject {
     @Published var windowIdentifiers: [WindowIdentifier]
     @Published var isActive: Bool
     @Published var displayOrder: Int
+    @Published var shortcut: KeyShortcut?
     let createdAt: Date
 
     init(
+        id: UUID = UUID(),
         name: String,
         windowIdentifiers: [WindowIdentifier] = [],
         isActive: Bool = false,
-        displayOrder: Int = 0
+        displayOrder: Int = 0,
+        shortcut: KeyShortcut? = nil
     ) {
-        self.id = UUID()
+        self.id = id
         self.name = name
         self.windowIdentifiers = windowIdentifiers
         self.isActive = isActive
         self.displayOrder = displayOrder
+        self.shortcut = shortcut
         self.createdAt = Date()
     }
 
     // MARK: - Codable (Published 프로퍼티 수동 구현)
 
     enum CodingKeys: String, CodingKey {
-        case id, name, windowIdentifiers, isActive, displayOrder, createdAt
+        case id, name, windowIdentifiers, isActive, displayOrder, shortcut, createdAt
     }
 
     required init(from decoder: Decoder) throws {
@@ -36,6 +40,7 @@ final class WorkspaceConfiguration: Identifiable, Codable, ObservableObject {
         windowIdentifiers = try container.decode([WindowIdentifier].self, forKey: .windowIdentifiers)
         isActive = try container.decode(Bool.self, forKey: .isActive)
         displayOrder = try container.decode(Int.self, forKey: .displayOrder)
+        shortcut = try container.decodeIfPresent(KeyShortcut.self, forKey: .shortcut)
         createdAt = try container.decode(Date.self, forKey: .createdAt)
     }
 
@@ -46,6 +51,7 @@ final class WorkspaceConfiguration: Identifiable, Codable, ObservableObject {
         try container.encode(windowIdentifiers, forKey: .windowIdentifiers)
         try container.encode(isActive, forKey: .isActive)
         try container.encode(displayOrder, forKey: .displayOrder)
+        try container.encodeIfPresent(shortcut, forKey: .shortcut)
         try container.encode(createdAt, forKey: .createdAt)
     }
 }

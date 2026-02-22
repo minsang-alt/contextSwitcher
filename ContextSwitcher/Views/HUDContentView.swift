@@ -65,9 +65,20 @@ struct WorkspaceHUDRow: View {
                     .frame(width: 8, height: 8)
 
                 VStack(alignment: .leading, spacing: 1) {
-                    Text(workspace.name)
-                        .font(.system(size: 13, weight: workspace.isActive ? .semibold : .regular))
-                        .foregroundStyle(.primary)
+                    HStack(spacing: 6) {
+                        Text(workspace.name)
+                            .font(.system(size: 13, weight: workspace.isActive ? .semibold : .regular))
+                            .foregroundStyle(.primary)
+                        if let shortcutText = workspace.shortcut?.displayString {
+                            Text(shortcutText)
+                                .font(.system(size: 9, design: .rounded))
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 3)
+                                .padding(.vertical, 1)
+                                .background(Color.secondary.opacity(0.12))
+                                .cornerRadius(3)
+                        }
+                    }
                     Text("\(workspace.windowIdentifiers.count) apps")
                         .font(.system(size: 10))
                         .foregroundStyle(.secondary)

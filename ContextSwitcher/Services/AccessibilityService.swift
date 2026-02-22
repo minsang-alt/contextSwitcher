@@ -13,8 +13,8 @@ struct DiscoveredWindow: Identifiable {
     /// 앱 내 윈도우 순서 (0-based). 탭/파일 전환에도 안정적
     let windowIndex: Int
 
-    /// bundleIdentifier + 윈도우 인덱스 기반 ID (탭/파일 전환에 영향 안 받음)
-    var id: String { "\(bundleIdentifier):\(windowIndex)" }
+    /// bundleIdentifier + PID + 윈도우 인덱스 기반 ID (탭/파일 전환에 영향 안 받음)
+    var id: String { "\(bundleIdentifier):\(pid):\(windowIndex)" }
 
     /// 탭/파일 전환에도 안정적인 식별 이름 (저장 및 매칭용)
     var stableIdentityName: String {

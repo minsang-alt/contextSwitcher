@@ -66,9 +66,10 @@ final class WorkspaceStore: ObservableObject {
         }
     }
 
-    func update(_ workspace: WorkspaceConfiguration, name: String, identifiers: [WindowIdentifier]) {
+    func update(_ workspace: WorkspaceConfiguration, name: String, identifiers: [WindowIdentifier], shortcut: KeyShortcut? = nil) {
         workspace.name = name
         workspace.windowIdentifiers = identifiers
+        workspace.shortcut = shortcut
         save()
     }
 

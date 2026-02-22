@@ -108,8 +108,19 @@ struct WorkspaceRow: View {
                 CaptureWindowController.shared.showEdit(workspace)
             } label: {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(workspace.name)
-                        .font(.system(size: 13, weight: workspace.isActive ? .semibold : .regular))
+                    HStack(spacing: 6) {
+                        Text(workspace.name)
+                            .font(.system(size: 13, weight: workspace.isActive ? .semibold : .regular))
+                        if let shortcutText = workspace.shortcut?.displayString {
+                            Text(shortcutText)
+                                .font(.system(size: 10, design: .rounded))
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 4)
+                                .padding(.vertical, 1)
+                                .background(Color.secondary.opacity(0.12))
+                                .cornerRadius(3)
+                        }
+                    }
                     Text("\(workspace.windowIdentifiers.count) apps")
                         .font(.caption2)
                         .foregroundStyle(.secondary)

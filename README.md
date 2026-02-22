@@ -18,6 +18,7 @@ https://github.com/user-attachments/assets/010d90dd-5c32-4f04-9d9f-1386d15954ed
 
 - Save current window layouts as named workspaces
 - Switch between workspaces instantly from the menu bar
+- **Global keyboard shortcuts** to switch workspaces from any app
 - Selectively show/hide individual windows (e.g., specific IntelliJ projects)
 - Floating HUD panel for quick access
 - Restore all hidden apps with one click

@@ -10,6 +10,11 @@ struct ContextSwitcherApp: App {
             print("[ContextSwitcher] Requesting accessibility permission...")
             AccessibilityService.shared.requestAccessibilityPermission()
         }
+
+        // 글로벌 키보드 단축키 서비스 시작 (Accessibility 권한 필요)
+        if granted {
+            ShortcutService.shared.start()
+        }
     }
 
     var body: some Scene {

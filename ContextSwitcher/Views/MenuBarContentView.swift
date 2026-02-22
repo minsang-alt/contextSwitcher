@@ -34,6 +34,9 @@ struct MenuBarContentView: View {
                 let granted = AccessibilityService.shared.isAccessibilityGranted
                 if granted != accessibilityGranted {
                     accessibilityGranted = granted
+                    if granted {
+                        ShortcutService.shared.start()
+                    }
                 }
                 if granted { timer.invalidate() }
             }

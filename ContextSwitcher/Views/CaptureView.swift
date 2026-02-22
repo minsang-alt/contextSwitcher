@@ -9,6 +9,9 @@ struct CaptureView: View {
     @State private var workspaceName = ""
     @State private var discoveredWindows: [DiscoveredWindow] = []
     @State private var selectedWindowIDs: Set<String> = []
+    @State private var shortcut: KeyShortcut?
+    /// 신규 생성 시 임시로 사용할 워크스페이스 ID
+    @State private var pendingWorkspaceID = UUID()
 
     private var isEditing: Bool { editingWorkspace != nil }
 
@@ -19,6 +22,13 @@ struct CaptureView: View {
 
             TextField("Workspace name", text: $workspaceName)
                 .textFieldStyle(.roundedBorder)
+
+            HStack {
+                Text("Shortcut")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                ShortcutRecorderView(shortcut: $shortcut)
+            }
 
             Divider()
 
@@ -43,7 +53,7 @@ struct CaptureView: View {
                         }
                     }
                 }
-                .frame(maxHeight: 280)
+                .frame(maxHeight: 250)
             }
 
             Divider()
@@ -62,13 +72,14 @@ struct CaptureView: View {
             }
         }
         .padding()
-        .frame(width: 400, height: 450)
+        .frame(width: 400, height: 480)
         .onAppear {
             // 이미 스캔된 상태면 재스캔하지 않음 (앱 전환 후 돌아와도 체크 유지)
             guard discoveredWindows.isEmpty else { return }
 
             if let ws = editingWorkspace {
                 workspaceName = ws.name
+                shortcut = ws.shortcut
             } else {
                 let count = WorkspaceStore.shared.workspaces.count + 1
                 workspaceName = "Workspace \(count)"
@@ -81,47 +92,53 @@ struct CaptureView: View {
 
     @ViewBuilder
     private func appGroupView(_ group: AppGroup) -> some View {
-        let windowIDs = group.windows.map(\.id)
-        let allSelected = windowIDs.allSatisfy { selectedWindowIDs.contains($0) }
+        let windowIDs = Set(group.windows.map(\.id))
+        let selectedCount = windowIDs.filter { selectedWindowIDs.contains($0) }.count
+        let allSelected = selectedCount == windowIDs.count
+        let noneSelected = selectedCount == 0
 
         VStack(alignment: .leading, spacing: 0) {
-            // 앱 헤더 토글
-            Toggle(isOn: Binding(
-                get: { allSelected },
-                set: { isOn in
-                    if isOn {
-                        selectedWindowIDs.formUnion(windowIDs)
-                    } else {
-                        selectedWindowIDs.subtract(windowIDs)
-                    }
+            // 앱 헤더 — Button으로 구현 (Toggle 바인딩 연쇄 호출 방지)
+            Button {
+                if allSelected {
+                    selectedWindowIDs.subtract(windowIDs)
+                } else {
+                    selectedWindowIDs.formUnion(windowIDs)
                 }
-            )) {
-                Text(group.appName)
-                    .font(.system(size: 13, weight: .medium))
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: allSelected ? "checkmark.square.fill" :
+                            noneSelected ? "square" : "minus.square.fill")
+                        .foregroundColor(noneSelected ? .secondary : .accentColor)
+                    Text(group.appName)
+                        .font(.system(size: 13, weight: .medium))
+                }
             }
-            .toggleStyle(.checkbox)
+            .buttonStyle(.plain)
             .padding(.vertical, 4)
 
             // 창이 2개 이상이면 개별 창 체크박스 표시
             if group.windows.count > 1 {
                 VStack(alignment: .leading, spacing: 0) {
                     ForEach(group.windows) { window in
-                        Toggle(isOn: Binding(
-                            get: { selectedWindowIDs.contains(window.id) },
-                            set: { isOn in
-                                if isOn {
-                                    selectedWindowIDs.insert(window.id)
-                                } else {
-                                    selectedWindowIDs.remove(window.id)
-                                }
+                        Button {
+                            if selectedWindowIDs.contains(window.id) {
+                                selectedWindowIDs.remove(window.id)
+                            } else {
+                                selectedWindowIDs.insert(window.id)
                             }
-                        )) {
-                            Text(window.displayName.isEmpty ? "(제목 없음)" : window.displayName)
-                                .font(.system(size: 11))
-                                .foregroundStyle(.secondary)
-                                .lineLimit(1)
+                        } label: {
+                            HStack(spacing: 6) {
+                                Image(systemName: selectedWindowIDs.contains(window.id) ?
+                                        "checkmark.square.fill" : "square")
+                                    .foregroundColor(selectedWindowIDs.contains(window.id) ? .accentColor : .secondary)
+                                Text(window.displayName.isEmpty ? "(제목 없음)" : window.displayName)
+                                    .font(.system(size: 11))
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(1)
+                            }
                         }
-                        .toggleStyle(.checkbox)
+                        .buttonStyle(.plain)
                         .padding(.vertical, 2)
                     }
                 }
@@ -195,28 +212,49 @@ struct CaptureView: View {
 
     private func buildIdentifiers() -> [WindowIdentifier] {
         let selectedWindows = discoveredWindows.filter { selectedWindowIDs.contains($0.id) }
-        var appWindowCounts: [String: Int] = [:]
+
+        // 앱별 전체 창 개수와 선택된 창 개수 캐싱
+        var totalCounts: [String: Int] = [:]
+        var selectedCounts: [String: Int] = [:]
         for window in discoveredWindows {
-            appWindowCounts[window.bundleIdentifier, default: 0] += 1
+            totalCounts[window.bundleIdentifier, default: 0] += 1
         }
+        for window in selectedWindows {
+            selectedCounts[window.bundleIdentifier, default: 0] += 1
+        }
+
+        // Chrome/Brave/Edge: 탭 제목이 아닌 프로필명이 stableIdentityName이라서
+        // 부분 선택 시 전체 프로필 창이 매칭되는 문제를 방지하기 위해 원본 창 제목을 사용
+        let chromiumBundleIDs: Set<String> = [
+            "com.google.Chrome",
+            "com.google.Chrome.canary",
+            "com.brave.Browser",
+            "com.microsoft.edgemac"
+        ]
 
         var identifiers: [WindowIdentifier] = []
         var processedBundleIDs: Set<String> = []
 
         for window in selectedWindows {
             let bundleID = window.bundleIdentifier
-            let totalWindows = appWindowCounts[bundleID] ?? 0
-            let selectedCount = selectedWindows.filter { $0.bundleIdentifier == bundleID }.count
+            let total = totalCounts[bundleID] ?? 0
+            let selected = selectedCounts[bundleID] ?? 0
 
-            if processedBundleIDs.contains(bundleID) && selectedCount == totalWindows {
+            if processedBundleIDs.contains(bundleID) && selected == total {
                 continue
             }
 
-            if selectedCount == totalWindows {
+            if selected == total {
                 identifiers.append(WindowIdentifier(bundleIdentifier: bundleID, titlePattern: ""))
                 processedBundleIDs.insert(bundleID)
             } else {
-                let pattern = window.stableIdentityName
+                let pattern: String
+                if chromiumBundleIDs.contains(bundleID) {
+                    pattern = window.windowTitle.isEmpty ? window.stableIdentityName : window.windowTitle
+                } else {
+                    pattern = window.stableIdentityName
+                }
+
                 if !pattern.isEmpty {
                     identifiers.append(WindowIdentifier(
                         bundleIdentifier: bundleID,
@@ -233,11 +271,13 @@ struct CaptureView: View {
         let identifiers = buildIdentifiers()
 
         if let ws = editingWorkspace {
-            WorkspaceStore.shared.update(ws, name: workspaceName, identifiers: identifiers)
+            WorkspaceStore.shared.update(ws, name: workspaceName, identifiers: identifiers, shortcut: shortcut)
         } else {
             let workspace = WorkspaceConfiguration(
+                id: pendingWorkspaceID,
                 name: workspaceName,
-                windowIdentifiers: identifiers
+                windowIdentifiers: identifiers,
+                shortcut: shortcut
             )
             WorkspaceStore.shared.add(workspace)
         }
