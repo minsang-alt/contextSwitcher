@@ -4,6 +4,10 @@
 
 <h1 align="center">ContextSwitcher</h1>
 
+<p align="center">
+  <a href="README.md">English</a> | <a href="README.ko.md">한국어</a>
+</p>
+
 <p align="center">A macOS menu bar utility for managing multiple development contexts by hiding/showing app windows.</p>
 
 ## Demo
@@ -26,9 +30,9 @@ https://github.com/user-attachments/assets/010d90dd-5c32-4f04-9d9f-1386d15954ed
 
 > After downloading, open the DMG and drag `ContextSwitcher.app` to `/Applications`.
 >
-> **macOS Gatekeeper 경고 시:** 서명되지 않은 앱이라 경고가 뜰 수 있습니다. 아래 중 하나를 실행하세요.
-> - Finder에서 `ContextSwitcher.app`을 **우클릭 → 열기**
-> - 또는 터미널에서: `xattr -cr /Applications/ContextSwitcher.app`
+> **macOS Gatekeeper warning:** Since the app is not signed, macOS may show a warning. Use one of these workarounds:
+> - Right-click `ContextSwitcher.app` in Finder → **Open**
+> - Or run in Terminal: `xattr -cr /Applications/ContextSwitcher.app`
 
 ## Build from Source
 
