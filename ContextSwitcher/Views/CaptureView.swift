@@ -198,8 +198,7 @@ struct CaptureView: View {
                     // stableIdentityName과 windowTitle 모두 매칭 시도 (기존 데이터 호환)
                     selectedWindowIDs = Set(windows.filter { window in
                         ws.windowIdentifiers.contains { identifier in
-                            identifier.matches(bundleID: window.bundleIdentifier, windowTitle: window.windowTitle) ||
-                            identifier.matches(bundleID: window.bundleIdentifier, windowTitle: window.stableIdentityName)
+                            identifier.matches(window: window)
                         }
                     }.map(\.id))
                 } else {
@@ -258,7 +257,8 @@ struct CaptureView: View {
                 if !pattern.isEmpty {
                     identifiers.append(WindowIdentifier(
                         bundleIdentifier: bundleID,
-                        titlePattern: pattern
+                        titlePattern: pattern,
+                        windowID: window.id
                     ))
                 }
             }
