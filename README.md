@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="image 1 (2).png" alt="ContextSwitcher" width="128">
+  <img src="appicon.png" alt="ContextSwitcher" width="128">
 </p>
 
 <h1 align="center">ContextSwitcher</h1>
