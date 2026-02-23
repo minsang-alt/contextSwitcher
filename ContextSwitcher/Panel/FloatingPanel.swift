@@ -37,7 +37,12 @@ final class FloatingPanel: NSPanel {
         animationBehavior = .utilityWindow
     }
 
-    // 포커스를 훔치지 않음
-    override var canBecomeKey: Bool { false }
-    override var canBecomeMain: Bool { false }
+    /// 포커스를 훔치지 않음
+    override var canBecomeKey: Bool {
+        false
+    }
+
+    override var canBecomeMain: Bool {
+        false
+    }
 }

@@ -1,5 +1,5 @@
-import Foundation
 import Combine
+import Foundation
 
 /// JSON 파일 기반 워크스페이스 저장소
 final class WorkspaceStore: ObservableObject {

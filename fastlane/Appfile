@@ -1,0 +1,8 @@
+# App identifier
+app_identifier("com.minsang.ContextSwitcher")
+
+# Apple ID (set via environment variable)
+# apple_id(ENV["APPLE_ID"])
+
+# Team ID (set via environment variable)
+# team_id(ENV["TEAM_ID"])

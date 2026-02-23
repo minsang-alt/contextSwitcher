@@ -24,7 +24,7 @@ final class WorkspaceConfiguration: Identifiable, Codable, ObservableObject {
         self.isActive = isActive
         self.displayOrder = displayOrder
         self.shortcut = shortcut
-        self.createdAt = Date()
+        createdAt = Date()
     }
 
     // MARK: - Codable (Published 프로퍼티 수동 구현)

@@ -2,7 +2,9 @@ import Foundation
 
 /// 워크스페이스에 포함된 앱+창을 식별하기 위한 패턴
 struct WindowIdentifier: Codable, Hashable, Identifiable {
-    var id: String { windowID ?? "\(bundleIdentifier):\(titlePattern)" }
+    var id: String {
+        windowID ?? "\(bundleIdentifier):\(titlePattern)"
+    }
 
     /// 앱의 Bundle ID (예: "com.jetbrains.intellij")
     let bundleIdentifier: String
@@ -33,6 +35,6 @@ struct WindowIdentifier: Codable, Hashable, Identifiable {
         // 2) 제목 패턴 매칭
         if titlePattern.isEmpty { return true }
         return window.windowTitle.localizedCaseInsensitiveContains(titlePattern) ||
-               window.stableIdentityName.localizedCaseInsensitiveContains(titlePattern)
+            window.stableIdentityName.localizedCaseInsensitiveContains(titlePattern)
     }
 }

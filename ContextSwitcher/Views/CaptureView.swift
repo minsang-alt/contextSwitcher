@@ -13,7 +13,9 @@ struct CaptureView: View {
     /// 신규 생성 시 임시로 사용할 워크스페이스 ID
     @State private var pendingWorkspaceID = UUID()
 
-    private var isEditing: Bool { editingWorkspace != nil }
+    private var isEditing: Bool {
+        editingWorkspace != nil
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -108,7 +110,7 @@ struct CaptureView: View {
             } label: {
                 HStack(spacing: 6) {
                     Image(systemName: allSelected ? "checkmark.square.fill" :
-                            noneSelected ? "square" : "minus.square.fill")
+                        noneSelected ? "square" : "minus.square.fill")
                         .foregroundColor(noneSelected ? .secondary : .accentColor)
                     Text(group.appName)
                         .font(.system(size: 13, weight: .medium))
@@ -130,7 +132,7 @@ struct CaptureView: View {
                         } label: {
                             HStack(spacing: 6) {
                                 Image(systemName: selectedWindowIDs.contains(window.id) ?
-                                        "checkmark.square.fill" : "square")
+                                    "checkmark.square.fill" : "square")
                                     .foregroundColor(selectedWindowIDs.contains(window.id) ? .accentColor : .secondary)
                                 Text(window.displayName.isEmpty ? "(제목 없음)" : window.displayName)
                                     .font(.system(size: 11))
@@ -228,7 +230,7 @@ struct CaptureView: View {
             "com.google.Chrome",
             "com.google.Chrome.canary",
             "com.brave.Browser",
-            "com.microsoft.edgemac"
+            "com.microsoft.edgemac",
         ]
 
         var identifiers: [WindowIdentifier] = []
@@ -239,7 +241,7 @@ struct CaptureView: View {
             let total = totalCounts[bundleID] ?? 0
             let selected = selectedCounts[bundleID] ?? 0
 
-            if processedBundleIDs.contains(bundleID) && selected == total {
+            if processedBundleIDs.contains(bundleID), selected == total {
                 continue
             }
 
@@ -247,11 +249,10 @@ struct CaptureView: View {
                 identifiers.append(WindowIdentifier(bundleIdentifier: bundleID, titlePattern: ""))
                 processedBundleIDs.insert(bundleID)
             } else {
-                let pattern: String
-                if chromiumBundleIDs.contains(bundleID) {
-                    pattern = window.windowTitle.isEmpty ? window.stableIdentityName : window.windowTitle
+                let pattern: String = if chromiumBundleIDs.contains(bundleID) {
+                    window.windowTitle.isEmpty ? window.stableIdentityName : window.windowTitle
                 } else {
-                    pattern = window.stableIdentityName
+                    window.stableIdentityName
                 }
 
                 if !pattern.isEmpty {

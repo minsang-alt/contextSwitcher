@@ -14,18 +14,22 @@ struct DiscoveredWindow: Identifiable {
     let windowIndex: Int
 
     /// bundleIdentifier + PID + 윈도우 인덱스 기반 ID (탭/파일 전환에 영향 안 받음)
-    var id: String { "\(bundleIdentifier):\(pid):\(windowIndex)" }
+    var id: String {
+        "\(bundleIdentifier):\(pid):\(windowIndex)"
+    }
 
     /// 탭/파일 전환에도 안정적인 식별 이름 (저장 및 매칭용)
     var stableIdentityName: String {
         // Chrome 계열: "페이지제목 - Chrome - 프로필명" → 프로필명 추출
         if bundleIdentifier == "com.google.Chrome" ||
-           bundleIdentifier == "com.google.Chrome.canary" ||
-           bundleIdentifier == "com.brave.Browser" ||
-           bundleIdentifier == "com.microsoft.edgemac" {
+            bundleIdentifier == "com.google.Chrome.canary" ||
+            bundleIdentifier == "com.brave.Browser" ||
+            bundleIdentifier == "com.microsoft.edgemac"
+        {
             if let range = windowTitle.range(of: " - Chrome - ", options: .backwards) ??
-                           windowTitle.range(of: " - Brave - ", options: .backwards) ??
-                           windowTitle.range(of: " - Edge - ", options: .backwards) {
+                windowTitle.range(of: " - Brave - ", options: .backwards) ??
+                windowTitle.range(of: " - Edge - ", options: .backwards)
+            {
                 return String(windowTitle[range.upperBound...])
             }
         }
@@ -47,8 +51,9 @@ struct DiscoveredWindow: Identifiable {
         // "프로필명 · 현재탭제목" 또는 "프로젝트명 · 현재파일"
         // 현재 컨텍스트 부분 추출
         if let range = windowTitle.range(of: " - Chrome - ", options: .backwards) ??
-                       windowTitle.range(of: " - Brave - ", options: .backwards) ??
-                       windowTitle.range(of: " - Edge - ", options: .backwards) {
+            windowTitle.range(of: " - Brave - ", options: .backwards) ??
+            windowTitle.range(of: " - Edge - ", options: .backwards)
+        {
             let tabTitle = String(windowTitle[..<range.lowerBound])
             return "\(stable) · \(tabTitle)"
         }
@@ -80,7 +85,7 @@ final class AccessibilityService {
     /// Accessibility 권한을 요청 (시스템 다이얼로그 표시)
     func requestAccessibilityPermission() {
         let options = [
-            kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true
+            kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true,
         ] as CFDictionary
         AXIsProcessTrustedWithOptions(options)
     }
@@ -168,7 +173,9 @@ final class AccessibilityService {
             }
         }
 
-        print("[ContextSwitcher] Enumerated \(results.count) windows from \(Set(results.map(\.bundleIdentifier)).count) apps (AX: \(isAccessibilityGranted))")
+        print(
+            "[ContextSwitcher] Enumerated \(results.count) windows from \(Set(results.map(\.bundleIdentifier)).count) apps (AX: \(isAccessibilityGranted))"
+        )
         return results
     }
 
