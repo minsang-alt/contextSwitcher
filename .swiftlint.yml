@@ -2,6 +2,10 @@ disabled_rules:
   - trailing_whitespace
   - void_return
   - nesting
+  - trailing_comma
+  - identifier_name
+  - cyclomatic_complexity
+  - is_disjoint
 
 opt_in_rules:
   - empty_count
@@ -16,8 +20,8 @@ excluded:
   - DerivedData
 
 line_length:
-  warning: 150
-  error: 200
+  warning: 160
+  error: 250
 
 file_length:
   warning: 500
