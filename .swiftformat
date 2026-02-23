@@ -1,0 +1,12 @@
+--swiftversion 5.9
+--indent 4
+--maxwidth 150
+--wraparguments before-first
+--wrapcollections before-first
+--closingparen balanced
+--self remove
+--stripunusedargs closure-only
+--ifdef no-indent
+--disable redundantRawValues
+--disable blankLinesAtStartOfScope
+--exclude .build,.swiftpm,DerivedData

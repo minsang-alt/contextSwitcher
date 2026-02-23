@@ -1,10 +1,30 @@
+# Build
 .build/
+DerivedData/
+
+# Swift Package Manager
 .swiftpm/
-.idea/
-.claude/
-.DS_Store
+
+# Xcode
 *.xcodeproj
 xcuserdata/
-DerivedData/
+
+# IDE
+.idea/
+.vscode/
+
+# Claude Code
+.claude/
+
+# macOS
+.DS_Store
+
+# Binary artifacts
 *.mov
 *.dmg
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/

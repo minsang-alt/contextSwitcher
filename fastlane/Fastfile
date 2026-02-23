@@ -1,0 +1,69 @@
+default_platform(:mac)
+
+platform :mac do
+  desc "Build release binary"
+  lane :build do
+    sh("cd .. && swift build -c release 2>&1")
+  end
+
+  desc "Create app bundle"
+  lane :bundle do
+    build
+    sh("cd .. && ./scripts/install.sh")
+  end
+
+  desc "Create DMG for distribution"
+  lane :dmg do |options|
+    version = options[:version] || get_version
+    dmg_name = "ContextSwitcher-#{version}-arm64.dmg"
+    dmg_path = "/tmp/#{dmg_name}"
+
+    bundle
+
+    sh("rm -f '#{dmg_path}'")
+    sh("hdiutil create -volname ContextSwitcher -srcfolder /Applications/ContextSwitcher.app -ov -format UDZO '#{dmg_path}'")
+
+    UI.success("DMG created: #{dmg_path}")
+    dmg_path
+  end
+
+  desc "Build, notarize, and create release DMG"
+  lane :release do |options|
+    version = options[:version]
+    UI.user_error!("Version required: fastlane release version:x.y.z") unless version
+
+    # Update version in Info.plist
+    update_version(version: version)
+
+    # Build DMG
+    dmg_path = dmg(version: version)
+
+    # Notarize (requires Apple Developer ID)
+    if ENV["NOTARIZE"] == "true"
+      notarize(
+        package: dmg_path,
+        bundle_id: "com.minsang.ContextSwitcher",
+        username: ENV["APPLE_ID"],
+        asc_provider: ENV["ASC_PROVIDER"]
+      )
+      UI.success("Notarization complete!")
+    else
+      UI.important("Skipping notarization. Set NOTARIZE=true to enable.")
+    end
+
+    UI.success("Release #{version} ready: #{dmg_path}")
+  end
+
+  # Helper methods
+
+  def get_version
+    plist_path = "../ContextSwitcher/Resources/Info.plist"
+    `/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "#{plist_path}"`.strip
+  end
+
+  def update_version(version:)
+    plist_path = "../ContextSwitcher/Resources/Info.plist"
+    `/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString #{version}" "#{plist_path}"`
+    UI.success("Version updated to #{version}")
+  end
+end
