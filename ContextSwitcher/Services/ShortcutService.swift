@@ -1,5 +1,5 @@
-import Foundation
 import AppKit
+import Foundation
 
 /// CGEvent tap을 사용한 글로벌 키보드 단축키 서비스
 final class ShortcutService {
@@ -54,7 +54,7 @@ final class ShortcutService {
 
         // modifier 없는 단일 키는 무시 (일반 타이핑 방해 방지)
         let relevantFlags: CGEventFlags = [.maskControl, .maskAlternate, .maskShift, .maskCommand]
-        guard !flags.intersection(relevantFlags).isEmpty else { return false }
+        guard !flags.isDisjoint(with: relevantFlags) else { return false }
 
         for workspace in WorkspaceStore.shared.workspaces {
             guard let shortcut = workspace.shortcut else { continue }
@@ -80,7 +80,7 @@ private func shortcutEventCallback(
 ) -> Unmanaged<CGEvent>? {
     // 이벤트 탭이 비활성화되면 재활성화
     if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
-        if let userInfo = userInfo {
+        if let userInfo {
             let service = Unmanaged<ShortcutService>.fromOpaque(userInfo).takeUnretainedValue()
             if let tap = service.eventTap {
                 CGEvent.tapEnable(tap: tap, enable: true)
@@ -89,14 +89,14 @@ private func shortcutEventCallback(
         return Unmanaged.passRetained(event)
     }
 
-    guard type == .keyDown, let userInfo = userInfo else {
+    guard type == .keyDown, let userInfo else {
         return Unmanaged.passRetained(event)
     }
 
     let service = Unmanaged<ShortcutService>.fromOpaque(userInfo).takeUnretainedValue()
 
     if service.handleKeyEvent(event) {
-        return nil  // 이벤트 소비 (다른 앱에 전달하지 않음)
+        return nil // 이벤트 소비 (다른 앱에 전달하지 않음)
     }
     return Unmanaged.passRetained(event)
 }

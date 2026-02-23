@@ -1,10 +1,10 @@
-import Carbon
 import AppKit
+import Carbon
 
 /// 키보드 단축키를 표현하는 모델
 struct KeyShortcut: Codable, Equatable, Hashable {
     let keyCode: UInt16
-    let modifiers: UInt32  // Carbon modifier flags
+    let modifiers: UInt32 // Carbon modifier flags
 
     /// 사람이 읽을 수 있는 단축키 문자열 (예: "⌃1", "⌥⇧A")
     var displayString: String {
@@ -25,7 +25,7 @@ struct KeyShortcut: Codable, Equatable, Hashable {
         if cgFlags.contains(.maskAlternate) { carbonMods |= UInt32(optionKey) }
         if cgFlags.contains(.maskShift) { carbonMods |= UInt32(shiftKey) }
         if cgFlags.contains(.maskCommand) { carbonMods |= UInt32(cmdKey) }
-        self.modifiers = carbonMods
+        modifiers = carbonMods
     }
 
     /// NSEvent의 modifier flags에서 KeyShortcut 생성
@@ -36,7 +36,7 @@ struct KeyShortcut: Codable, Equatable, Hashable {
         if nsFlags.contains(.option) { carbonMods |= UInt32(optionKey) }
         if nsFlags.contains(.shift) { carbonMods |= UInt32(shiftKey) }
         if nsFlags.contains(.command) { carbonMods |= UInt32(cmdKey) }
-        self.modifiers = carbonMods
+        modifiers = carbonMods
     }
 
     /// modifier가 1개 이상 포함되어 있는지 확인

@@ -1,5 +1,5 @@
-import SwiftUI
 import AppKit
+import SwiftUI
 
 /// 키보드 단축키를 녹화하는 SwiftUI 뷰
 struct ShortcutRecorderView: View {
@@ -28,7 +28,7 @@ struct ShortcutRecorderView: View {
                 .font(.system(size: 11))
                 .buttonStyle(.plain)
                 .foregroundStyle(.secondary)
-            } else if let shortcut = shortcut {
+            } else if let shortcut {
                 Text(shortcut.displayString)
                     .font(.system(size: 12, design: .rounded))
                     .padding(.horizontal, 8)
@@ -65,7 +65,7 @@ struct ShortcutRecorderView: View {
         // 로컬 이벤트 모니터로 키 입력 캡처 (창이 포커스 상태이므로 local 사용)
         monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
             let flags = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
-            let hasModifier = !flags.intersection([.control, .option, .shift, .command]).isEmpty
+            let hasModifier = !flags.isDisjoint(with: [.control, .option, .shift, .command])
 
             // modifier가 없으면 무시 (ESC는 녹화 취소)
             if event.keyCode == 0x35 { // ESC
@@ -78,13 +78,13 @@ struct ShortcutRecorderView: View {
             let recorded = KeyShortcut(keyCode: event.keyCode, nsFlags: flags)
             shortcut = recorded
             stopRecording()
-            return nil  // 이벤트 소비
+            return nil // 이벤트 소비
         }
     }
 
     private func stopRecording() {
         isRecording = false
-        if let monitor = monitor {
+        if let monitor {
             NSEvent.removeMonitor(monitor)
         }
         monitor = nil

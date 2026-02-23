@@ -1,5 +1,5 @@
-import SwiftUI
 import AppKit
+import SwiftUI
 
 /// NSVisualEffectView를 SwiftUI에서 사용하기 위한 래퍼
 struct VisualEffectBackground: NSViewRepresentable {
@@ -30,7 +30,7 @@ struct VisualEffectBackground: NSViewRepresentable {
 
 extension View {
     func hudBackground(cornerRadius: CGFloat = 12) -> some View {
-        self.background(
+        background(
             VisualEffectBackground(material: .hudWindow)
                 .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
         )
